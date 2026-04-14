@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kayıt Ol</title>
+    <style>
+        .container {
+            max-width: 28rem;
+            margin: 0 auto;
+            padding: 1.5rem;
+            font-family: system-ui, sans-serif;
+            line-height: 1.5;
+        }
+        .field {
+            margin-bottom: 0.75rem;
+        }
+        .field label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            color: #18181b;
+        }
+        .field input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 0.5rem 0.65rem;
+            border: 1px solid #d4d4d8;
+            border-radius: 0.375rem;
+        }
+        .field input:focus {
+            outline: 2px solid #3b82f6;
+            outline-offset: 1px;
+            border-color: #3b82f6;
+        }
+        .password-requirements {
+            margin: 0.75rem 0 1rem;
+            padding: 0.875rem 1rem;
+            background: #fafafa;
+            border: 1px solid #e4e4e7;
+            border-radius: 0.5rem;
+            border-left: 4px solid #71717a;
+        }
+        .password-requirements-title {
+            margin: 0 0 0.5rem;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: #3f3f46;
+        }
+        .password-requirements-list {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            font-size: 0.8125rem;
+        }
+        .req-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            padding: 0.2rem 0;
+            color: #52525b;
+        }
+        .req-item.req-met {
+            color: #166534;
+        }
+        .req-item.req-unmet {
+            color: #71717a;
+        }
+        .req-icon {
+            flex-shrink: 0;
+            width: 1.1rem;
+            text-align: center;
+            font-weight: 700;
+            font-size: 0.75rem;
+            line-height: 1.4;
+        }
+        .req-met .req-icon {
+            color: #16a34a;
+        }
+        .req-unmet .req-icon {
+            color: #a1a1aa;
+        }
+        .req-text {
+            flex: 1;
+        }
+        .password-hint {
+            margin: 0.65rem 0 0;
+            padding-top: 0.5rem;
+            border-top: 1px solid #e4e4e7;
+            font-size: 0.75rem;
+            color: #71717a;
+        }
+        .password-hint code {
+            font-family: ui-monospace, monospace;
+            font-size: 0.7rem;
+            background: #f4f4f5;
+            padding: 0.1rem 0.35rem;
+            border-radius: 0.25rem;
+            color: #3f3f46;
+        }
+        #message:not(:empty) {
+            margin-top: 0.75rem;
+            font-size: 0.875rem;
+        }
+        .verify-panel {
+            margin-top: 0.5rem;
+            padding: 1rem;
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
+            border-radius: 0.5rem;
+        }
+        .verify-panel h2 {
+            margin: 0 0 0.5rem;
+            font-size: 1.125rem;
+            color: #0c4a6e;
+        }
+        .verify-panel .verify-lead {
+            margin: 0 0 0.75rem;
+            font-size: 0.875rem;
+            color: #334155;
+        }
+        .verify-panel .verify-email {
+            font-weight: 600;
+            color: #0f172a;
+            word-break: break-all;
+        }
+        #code {
+            font-size: 1.25rem;
+            letter-spacing: 0.35em;
+            font-variant-numeric: tabular-nums;
+            text-align: center;
+        }
+        .verify-actions {
+            margin-top: 0.75rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            align-items: center;
+        }
+        .verify-timer {
+            margin: 0 0 0.75rem;
+            font-size: 0.875rem;
+            color: #334155;
+        }
+        .verify-timer strong {
+            font-variant-numeric: tabular-nums;
+            letter-spacing: 0.02em;
+        }
+        #btn-resend:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+        }
+        .verify-resend-row {
+            margin-top: 0.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.35rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Kayıt Ol</h1>
+        <form id="form-register">
+            <div class="field">
+                <label for="name">Ad Soyad</label>
+                <input type="text" id="name" name="name" placeholder="Ad Soyad" autocomplete="name">
+            </div>
+            <div class="field">
+                <label for="email">E-posta</label>
+                <input type="email" id="email" name="email" placeholder="ornek@mail.com" autocomplete="email">
+            </div>
+            <div class="field">
+                <label for="password">Şifre</label>
+                <input type="password" id="password" name="password" placeholder="Şifrenizi girin" autocomplete="new-password" aria-describedby="password-requirements-heading requirements">
+            </div>
+            <div class="password-requirements" role="region" aria-labelledby="password-requirements-heading">
+                <p id="password-requirements-heading" class="password-requirements-title">Şifren şu kuralları karşılamalıdır:</p>
+                <ul id="requirements" class="password-requirements-list">
+                    <li id="req-length" class="req-item req-unmet" data-req="length">
+                        <span class="req-icon" aria-hidden="true">○</span>
+                        <span class="req-text">En az 8 karakter</span>
+                    </li>
+                    <li id="req-upper" class="req-item req-unmet" data-req="upper">
+                        <span class="req-icon" aria-hidden="true">○</span>
+                        <span class="req-text">En az bir büyük harf (A–Z)</span>
+                    </li>
+                    <li id="req-lower" class="req-item req-unmet" data-req="lower">
+                        <span class="req-icon" aria-hidden="true">○</span>
+                        <span class="req-text">En az bir küçük harf (a–z)</span>
+                    </li>
+                    <li id="req-number" class="req-item req-unmet" data-req="number">
+                        <span class="req-icon" aria-hidden="true">○</span>
+                        <span class="req-text">En az bir rakam (0–9)</span>
+                    </li>
+                    <li id="req-special" class="req-item req-unmet" data-req="special">
+                        <span class="req-icon" aria-hidden="true">○</span>
+                        <span class="req-text">En az bir özel karakter (!@#$%^&amp;*)</span>
+                    </li>
+                </ul>
+                <p class="password-hint">Yalnızca bu özel karakterler kabul edilir: <code>! @ # $ % ^ &amp; *</code> — boşluk veya başka semboller kullanılamaz.</p>
+            </div>
+            <button type="button" id="btn-signup" onclick="signup()">Kayıt Ol</button>
+        </form>
+
+        <div id="step-verify" class="verify-panel" hidden>
+            <h2>E-postanı doğrula</h2>
+            <p class="verify-lead">
+                <span id="verify-email" class="verify-email"></span> adresine 6 haneli bir kod gönderdik. Kodu aşağıya gir.
+            </p>
+            <p id="verify-timer" class="verify-timer" aria-live="polite">
+                Yeni kod için bekleme: <strong id="timer-display">03:00</strong>
+            </p>
+            <div class="field">
+                <label for="code">Doğrulama kodu</label>
+                <input type="text" id="code" name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000" aria-describedby="code-hint">
+                <p id="code-hint" class="password-hint" style="border: none; padding-top: 0.35rem;">Kod 3 dakika geçerlidir.</p>
+            </div>
+            <div class="verify-actions">
+                <button type="button" onclick="verifyEmail()">Kodu doğrula</button>
+                <a href="index.html">Giriş sayfasına dön</a>
+            </div>
+            <div class="verify-resend-row">
+                <button type="button" id="btn-resend" disabled onclick="resendVerificationCode()">Kodu yeniden gönder</button>
+            </div>
+        </div>
+
+        <p id="signup-footer-link">Zaten hesabın var mı? <a href="index.html">Giriş yap</a></p>
+        <div id="message"></div>
+    </div>
+
+    <script>
+        const PASSWORD_RULES = [
+            { id: 'req-length', test: (p) => p.length >= 8 },
+            { id: 'req-upper', test: (p) => /[A-Z]/.test(p) },
+            { id: 'req-lower', test: (p) => /[a-z]/.test(p) },
+            { id: 'req-number', test: (p) => /[0-9]/.test(p) },
+            { id: 'req-special', test: (p) => /[!@#$%^&*]/.test(p) }
+        ]
+
+        function updatePasswordRequirements(password) {
+            PASSWORD_RULES.forEach((rule) => {
+                const li = document.getElementById(rule.id)
+                const ok = rule.test(password)
+                const icon = li.querySelector('.req-icon')
+                li.classList.toggle('req-met', ok)
+                li.classList.toggle('req-unmet', !ok)
+                icon.textContent = ok ? '✓' : '○'
+            })
+        }
+
+        document.getElementById('password').addEventListener('input', function () {
+            updatePasswordRequirements(this.value)
+        })
+
+        const codeInput = document.getElementById('code')
+        codeInput.addEventListener('input', function () {
+            this.value = this.value.replace(/\D/g, '').slice(0, 6)
+        })
+        codeInput.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault()
+                verifyEmail()
+            }
+        })
+
+        const VERIFY_COOLDOWN_MS = 3 * 60 * 1000
+        let pendingEmail = ''
+        let verifyIntervalId = null
+        let verifyCountdownEnd = 0
+
+        function clearVerifyTimer() {
+            if (verifyIntervalId !== null) {
+                clearInterval(verifyIntervalId)
+                verifyIntervalId = null
+            }
+        }
+
+        function formatCountdown(ms) {
+            const totalSec = Math.max(0, Math.ceil(ms / 1000))
+            const m = Math.floor(totalSec / 60)
+            const s = totalSec % 60
+            return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0')
+        }
+
+        function tickVerifyCooldown() {
+            const btn = document.getElementById('btn-resend')
+            const display = document.getElementById('timer-display')
+            const left = verifyCountdownEnd - Date.now()
+            if (left <= 0) {
+                display.textContent = '00:00'
+                btn.disabled = false
+                clearVerifyTimer()
+                return
+            }
+            display.textContent = formatCountdown(left)
+        }
+
+        function startVerifyCooldown() {
+            clearVerifyTimer()
+            const btn = document.getElementById('btn-resend')
+            btn.disabled = true
+            verifyCountdownEnd = Date.now() + VERIFY_COOLDOWN_MS
+            tickVerifyCooldown()
+            verifyIntervalId = setInterval(tickVerifyCooldown, 1000)
+        }
+
+        async function signup() {
+            const name = document.getElementById('name').value
+            const email = document.getElementById('email').value
+            const password = document.getElementById('password').value
+            const messageDiv = document.getElementById('message')
+
+            try {
+                const response = await fetch('http://localhost:3000/api/auth/signup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, password })
+                })
+
+                const data = await response.json()
+
+                if (!response.ok) {
+                    messageDiv.style.color = ''
+                    messageDiv.textContent = data.message
+                    return
+                }
+
+                pendingEmail = data.email || email
+                document.getElementById('verify-email').textContent = pendingEmail
+                document.getElementById('form-register').hidden = true
+                document.getElementById('signup-footer-link').hidden = true
+                document.getElementById('step-verify').hidden = false
+                messageDiv.textContent = ''
+                document.getElementById('code').value = ''
+                startVerifyCooldown()
+                document.getElementById('code').focus()
+            } catch (err) {
+                messageDiv.style.color = ''
+                messageDiv.textContent = 'Sunucuya bağlanılamadı.'
+            }
+        }
+
+        async function verifyEmail() {
+            const code = document.getElementById('code').value.trim()
+            const messageDiv = document.getElementById('message')
+
+            if (!/^\d{6}$/.test(code)) {
+                messageDiv.style.color = ''
+                messageDiv.textContent = 'Lütfen e-postandaki 6 haneli kodu gir.'
+                return
+            }
+
+            try {
+                const response = await fetch('http://localhost:3000/api/auth/verify-email', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: pendingEmail, code })
+                })
+
+                const data = await response.json()
+
+                if (!response.ok) {
+                    messageDiv.style.color = ''
+                    messageDiv.textContent = data.message
+                    return
+                }
+
+                clearVerifyTimer()
+                sessionStorage.setItem('signupSuccess', 'verified')
+                sessionStorage.setItem('prefillEmail', pendingEmail)
+                window.location.href = 'index.html'
+            } catch (err) {
+                messageDiv.style.color = ''
+                messageDiv.textContent = 'Sunucuya bağlanılamadı.'
+            }
+        }
+
+        async function resendVerificationCode() {
+            const messageDiv = document.getElementById('message')
+            const btn = document.getElementById('btn-resend')
+
+            if (btn.disabled || !pendingEmail) {
+                return
+            }
+
+            btn.disabled = true
+
+            try {
+                const response = await fetch('http://localhost:3000/api/auth/resend-verification', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: pendingEmail })
+                })
+
+                const data = await response.json()
+
+                if (!response.ok) {
+                    messageDiv.style.color = ''
+                    messageDiv.textContent = data.message
+                    btn.disabled = false
+                    return
+                }
+
+                messageDiv.style.color = 'green'
+                messageDiv.textContent = data.message
+                startVerifyCooldown()
+            } catch (err) {
+                messageDiv.style.color = ''
+                messageDiv.textContent = 'Sunucuya bağlanılamadı.'
+                btn.disabled = false
+            }
+        }
+    </script>
+</body>
+</html>

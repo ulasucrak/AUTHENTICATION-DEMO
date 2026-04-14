@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giriş Yap</title>
+    <style>
+        :root {
+            --bg: #f4f4f5;
+            --card: #ffffff;
+            --border: #e4e4e7;
+            --text: #18181b;
+            --muted: #71717a;
+            --accent: #2563eb;
+            --accent-hover: #1d4ed8;
+            --radius: 0.75rem;
+            --shadow: 0 1px 3px rgb(0 0 0 / 0.06), 0 12px 32px rgb(0 0 0 / 0.06);
+        }
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: system-ui, -apple-system, sans-serif;
+            line-height: 1.5;
+            color: var(--text);
+            background: var(--bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+        .shell {
+            width: 100%;
+            max-width: 26rem;
+        }
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 1.75rem 1.5rem 1.5rem;
+        }
+        .brand {
+            margin: 0 0 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+        h1 {
+            margin: 0 0 1.25rem;
+            font-size: 1.375rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+        .field {
+            margin-bottom: 0.875rem;
+        }
+        .field label {
+            display: block;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            margin-bottom: 0.35rem;
+            color: #3f3f46;
+        }
+        .field input {
+            width: 100%;
+            padding: 0.55rem 0.65rem;
+            font-size: 1rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            background: #fafafa;
+            transition: border-color 0.15s, background 0.15s;
+        }
+        .field input:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: #fff;
+            box-shadow: 0 0 0 3px rgb(37 99 235 / 0.15);
+        }
+        .btn {
+            width: 100%;
+            margin-top: 0.25rem;
+            padding: 0.6rem 1rem;
+            font-size: 0.9375rem;
+            font-weight: 600;
+            color: #fff;
+            background: var(--accent);
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .btn:hover {
+            background: var(--accent-hover);
+        }
+        .btn:focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+        }
+        .footer {
+            margin-top: 1.25rem;
+            text-align: center;
+            font-size: 0.875rem;
+            color: var(--muted);
+        }
+        .footer a {
+            color: var(--accent);
+            font-weight: 600;
+            text-decoration: none;
+        }
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        #message:not(:empty) {
+            margin-top: 1rem;
+            padding: 0.6rem 0.75rem;
+            font-size: 0.875rem;
+            border-radius: 0.5rem;
+            background: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+        #message.success {
+            background: #f0fdf4;
+            color: #166534;
+            border-color: #bbf7d0;
+        }
+    </style>
+</head>
+<body>
+    <div class="shell">
+        <div class="card">
+            <p class="brand">Auth project</p>
+            <h1>Giriş Yap</h1>
+            <form>
+                <div class="field">
+                    <label for="email">E-posta</label>
+                    <input type="email" id="email" name="email" placeholder="ornek@mail.com" autocomplete="email">
+                </div>
+                <div class="field">
+                    <label for="password">Şifre</label>
+                    <input type="password" id="password" name="password" placeholder="••••••••" autocomplete="current-password">
+                </div>
+                <button type="button" class="btn" onclick="login()">Giriş Yap</button>
+            </form>
+            <p class="footer"><a href="forgot-password.html">Şifremi unuttum</a></p>
+            <p class="footer">Hesabın yok mu? <a href="signup.html">Kayıt ol</a></p>
+            <div id="message"></div>
+        </div>
+    </div>
+    <script>
+        ;(function () {
+            const messageDiv = document.getElementById('message')
+
+            const resetFlag = sessionStorage.getItem('resetSuccess')
+            if (resetFlag) {
+                sessionStorage.removeItem('resetSuccess')
+                messageDiv.className = 'success'
+                messageDiv.textContent = 'Şifren güncellendi. Giriş yapabilirsin.'
+                const prefill = sessionStorage.getItem('prefillEmail')
+                if (prefill) {
+                    sessionStorage.removeItem('prefillEmail')
+                    const emailInput = document.getElementById('email')
+                    if (emailInput) emailInput.value = prefill
+                }
+                return
+            }
+
+            const signupFlag = sessionStorage.getItem('signupSuccess')
+            if (!signupFlag) return
+
+            sessionStorage.removeItem('signupSuccess')
+            messageDiv.className = 'success'
+            if (signupFlag === 'verified') {
+                messageDiv.textContent =
+                    'E-posta adresin doğrulandı. Şimdi şifrenle giriş yapabilirsin.'
+            } else {
+                messageDiv.textContent =
+                    'Kayıt başarılı. Şimdi e-posta ve şifrenle giriş yapabilirsin.'
+            }
+
+            const prefill = sessionStorage.getItem('prefillEmail')
+            if (prefill) {
+                sessionStorage.removeItem('prefillEmail')
+                const emailInput = document.getElementById('email')
+                if (emailInput) emailInput.value = prefill
+            }
+        })()
+
+        async function login() {
+            const email = document.getElementById('email').value
+            const password = document.getElementById('password').value
+            const messageDiv = document.getElementById('message')
+
+            try {
+                const response = await fetch('http://localhost:3000/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                })
+
+                const data = await response.json()
+
+                if (!response.ok) {
+                    messageDiv.className = ''
+                    messageDiv.textContent = data.message
+                    return
+                }
+
+                localStorage.setItem('token', data.token)
+                localStorage.setItem('name', data.name)
+                if (data.email) {
+                    localStorage.setItem('email', data.email)
+                }
+                window.location.href = 'dashboard.html'
+
+            } catch (err) {
+                messageDiv.className = ''
+                messageDiv.textContent = 'Sunucuya bağlanılamadı.'
+            }
+        }
+    </script>
+</body>
+</html>
